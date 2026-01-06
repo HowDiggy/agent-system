@@ -12,6 +12,7 @@ class OrchestratorState(Enum):
     PROPOSE = auto()
     CRITIQUE = auto()
     ARBITRATE = auto()
+    REVISE = auto()
     END = auto()
 
 
@@ -29,6 +30,8 @@ class Orchestrator:
         self.proposal = None
         self.critiques = []
         self.decision = None
+        self.max_iterations = 3
+        self.iteration = 0
 
     def run(self, problem: str):
         while self.state != OrchestratorState.END:
@@ -58,13 +61,26 @@ class Orchestrator:
                     self.state = OrchestratorState.END
 
                 elif self.decision.action == Action.REVISE:
-                    self.state = OrchestratorState.END
+                    if self.iteration >= self.max_iterations:
+                        self.state = OrchestratorState.END
+                    else:
+                        self.state = OrchestratorState.REVISE
 
                 else:
                     self.state = OrchestratorState.END
+
+            elif self.state == OrchestratorState.REVISE:
+                self.iteration += 1
+                self.proposal = self.proposer.revise(
+                    problem,
+                    self.proposal,
+                    self.critiques
+                )
+                self.state = OrchestratorState.CRITIQUE
 
         return {
             "proposal": self.proposal,
             "critiques": self.critiques,
             "decision": self.decision,
         }
+

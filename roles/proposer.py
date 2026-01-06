@@ -4,6 +4,14 @@ class Proposer:
 
     def propose(self, problem: str) -> dict:
         raise NotImplementedError
+    
+    def revise(
+        self,
+        problem: str,
+        prior_proposal: dict,
+        critiques: list
+    ) -> dict:
+        raise NotImplementedError
 
 
 class SimpleBackupProposer(Proposer):
@@ -18,6 +26,15 @@ class SimpleBackupProposer(Proposer):
                 "stored on local disk via cron."
             )
         }
+    def revise(self, problem: str, prior_proposal: dict, critiques: list) -> dict:
+        return {
+            "proposer": self.name,
+            "solution": (
+                "Use pg_dump to create daily logical backups, "
+                "store them off-host, and verify integrity using checksums."
+            )
+        }
+
 
 
 class RobustBackupProposer(Proposer):
