@@ -13,4 +13,5 @@ class Action(Enum):
 class Decision:
     action: Action
     selected_proposer: Optional[str]
+    selected_proposal: Optional[str]
     rationale: str

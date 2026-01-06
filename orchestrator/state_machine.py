@@ -35,10 +35,14 @@ class Orchestrator:
         self.max_iterations = 3
         self.iteration = 0
 
+    def debug(self, msg: str):
+        print(f"[{self.state.name}] {msg}")
+
     def run(self, problem: str):
         while self.state != OrchestratorState.END:
 
             if self.state == OrchestratorState.START:
+                self.debug("Starting orchestration")
                 self.state = OrchestratorState.PROPOSE
 
             elif self.state == OrchestratorState.PROPOSE:
@@ -46,6 +50,9 @@ class Orchestrator:
                     proposer.propose(problem)
                     for proposer in self.proposers
                 ]
+                self.debug("Proposals generated:")
+                for p in self.proposals:
+                    self.debug(f" - {p}")
 
                 self.state = OrchestratorState.CRITIQUE
 
@@ -58,11 +65,7 @@ class Orchestrator:
                             critic.critique(proposal)
                         )
 
-                print("Proposals:")
-                for p in self.proposals:
-                    print(f" - {p['proposer']}")
-
-                print("Critiques:")
+                self.debug("Critiques collected: ")
                 for c in self.critiques:
                     print(f" - {c.target}: {c.severity}")
 
@@ -74,6 +77,10 @@ class Orchestrator:
                 self.decision = arbitration_policy(
                     self.proposals,
                     self.critiques
+                )
+                self.debug(
+                    f"Decision: {self.decision.action.name} "
+                    f"(selected={self.decision.selected_proposer})"
                 )
 
                 self.selected_proposer_name = self.decision.selected_proposer
@@ -92,7 +99,11 @@ class Orchestrator:
 
             elif self.state == OrchestratorState.REVISE:
                 self.iteration += 1
-
+                
+                self.debug(
+                    f"Revising proposal by {self.selected_proposer_name} "
+                    f"(iteration {self.iteration})"
+                )
                 winning_proposer = next(
                     p for p in self.proposers
                     if p.name == self.selected_proposer_name
@@ -104,12 +115,15 @@ class Orchestrator:
                     self.critiques
                 )
 
+                self.debug("Revised proposal produced")
+
                 self.proposals = [self.active_proposal]
                 self.state = OrchestratorState.CRITIQUE
 
         return {
-            "proposal": self.selected_proposer_name,
+            "proposer": self.selected_proposer_name,
             "critiques": self.critiques,
             "decision": self.decision,
+            "proposal": self.active_proposal,
         }
 

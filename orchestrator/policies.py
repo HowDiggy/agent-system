@@ -20,6 +20,7 @@ def arbitration_policy(proposals: list, critiques: list) -> Decision:
         return Decision(
             action=Action.REVISE,
             selected_proposer=selected_proposal["proposer"],
+            selected_proposal=selected_proposal,
             rationale=(
                 f"{len(critical_issues)} critical issue(s) "
                 "must be addressed before acceptance."
@@ -29,6 +30,7 @@ def arbitration_policy(proposals: list, critiques: list) -> Decision:
     return Decision(
         action=Action.ACCEPT,
         selected_proposer=selected_proposal["proposer"],
+        selected_proposal=selected_proposal["solution"],
         rationale="No critical issues detected."
     )
 
