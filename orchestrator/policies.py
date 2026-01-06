@@ -2,19 +2,24 @@ from schemas.critique import Severity
 from schemas.decision import Decision, Action
 
 
-def arbitration_policy(proposal: dict, critiques: list) -> Decision:
+def arbitration_policy(proposals: list, critiques: list) -> Decision:
     """
-    Decide what to do with a proposal given its critiques.
+    Decide what to do given multiple proposals and critiques.
     """
 
+    # For now: pick the first proposal deterministically
+    selected_proposal = proposals[0]
+
     critical_issues = [
-        c for c in critiques if c.severity == Severity.CRITICAL
+        c for c in critiques
+        if c.severity == Severity.CRITICAL
+        and c.target == selected_proposal["proposer"]
     ]
 
     if critical_issues:
         return Decision(
             action=Action.REVISE,
-            target=proposal["proposer"],
+            target=selected_proposal["proposer"],
             rationale=(
                 f"{len(critical_issues)} critical issue(s) "
                 "must be addressed before acceptance."
@@ -23,6 +28,7 @@ def arbitration_policy(proposal: dict, critiques: list) -> Decision:
 
     return Decision(
         action=Action.ACCEPT,
-        target=None,
+        target=selected_proposal["proposer"],
         rationale="No critical issues detected."
     )
+

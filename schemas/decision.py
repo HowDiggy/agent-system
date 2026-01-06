@@ -12,5 +12,5 @@ class Action(Enum):
 @dataclass
 class Decision:
     action: Action
-    target: Optional[str]
+    selected_proposer: Optional[str]
     rationale: str

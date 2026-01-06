@@ -19,15 +19,16 @@ class OrchestratorState(Enum):
 class Orchestrator:
     def __init__(
         self,
-        proposer: Proposer,
+        proposers: List[Proposer],
         critics: List[Critic],
     ):
-        self.proposer = proposer
+        self.proposers = proposers
         self.critics = critics
 
         self.state = OrchestratorState.START
 
-        self.proposal = None
+        self.proposals = []
+        self.active_proposal = None
         self.critiques = []
         self.decision = None
         self.max_iterations = 3
@@ -40,22 +41,41 @@ class Orchestrator:
                 self.state = OrchestratorState.PROPOSE
 
             elif self.state == OrchestratorState.PROPOSE:
-                self.proposal = self.proposer.propose(problem)
+                self.proposals = [
+                    proposer.propose(problem)
+                    for proposer in self.proposers
+                ]
+
                 self.state = OrchestratorState.CRITIQUE
 
             elif self.state == OrchestratorState.CRITIQUE:
                 self.critiques = []
-                for critic in self.critics:
-                    self.critiques.extend(
-                        critic.critique(self.proposal)
-                    )
+
+                for proposal in self.proposals:
+                    for critic in self.critics:
+                        self.critiques.extend(
+                            critic.critique(proposal)
+                        )
+
+                print("Proposals:")
+                for p in self.proposals:
+                    print(f" - {p['proposer']}")
+
+                print("Critiques:")
+                for c in self.critiques:
+                    print(f" - {c.target}: {c.severity}")
+
+
                 self.state = OrchestratorState.ARBITRATE
+
 
             elif self.state == OrchestratorState.ARBITRATE:
                 self.decision = arbitration_policy(
-                    self.proposal,
+                    self.proposals,
                     self.critiques
                 )
+
+                self.active_proposal = self.decision.selected_proposer
 
                 if self.decision.action == Action.ACCEPT:
                     self.state = OrchestratorState.END
@@ -71,11 +91,19 @@ class Orchestrator:
 
             elif self.state == OrchestratorState.REVISE:
                 self.iteration += 1
-                self.proposal = self.proposer.revise(
+
+                winning_proposer = next(
+                    p for p in self.proposers
+                    if p.name == self.active_proposal["proposer"]
+                )
+
+                self.active_proposal = winning_proposer.revise(
                     problem,
-                    self.proposal,
+                    self.active_proposal,
                     self.critiques
                 )
+
+                self.proposals = [self.active_proposal]
                 self.state = OrchestratorState.CRITIQUE
 
         return {

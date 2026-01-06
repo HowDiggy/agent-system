@@ -1,16 +1,19 @@
 from orchestrator.state_machine import Orchestrator
-from roles.proposer import SimpleBackupProposer
+from roles.proposer import SimpleBackupProposer, PhysicalBackupProposer
 from roles.critic import ReliabilityCritic
 
 
 def main():
-    proposer = SimpleBackupProposer()
+    proposers = [
+        SimpleBackupProposer(),
+        PhysicalBackupProposer(),
+    ]
     critics = [
         ReliabilityCritic()
     ]
 
     orchestrator = Orchestrator(
-        proposer=proposer,
+        proposers=proposers,
         critics=critics
     )
 

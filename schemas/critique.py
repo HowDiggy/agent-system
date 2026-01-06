@@ -21,4 +21,5 @@ class Critique:
     dimension: Dimension
     resolvable: bool
     rationale: str
+    target: str
 

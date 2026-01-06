@@ -37,15 +37,24 @@ class SimpleBackupProposer(Proposer):
 
 
 
-class RobustBackupProposer(Proposer):
+class PhysicalBackupProposer(Proposer):
     def __init__(self):
-        super().__init__(name="robust_backup_proposer")
-
+        super().__init__(name="physical_backup_proposer")
+        
     def propose(self, problem: str) -> dict:
         return {
             "proposer": self.name,
             "solution": (
-                "Use pg_dump with compression, store backups in "
-                "object storage, and verify integrity with checksums."
+                "Use pg_basebackup to take physical backups, "
+                "store WAL archives, and enable point-in-time recovery."
+            )
+        }
+
+    def revise(self, problem: str, prior_proposal: dict, critiques: list) -> dict:
+        return {
+            "proposer": self.name,
+            "solution": (
+                "Use pg_basebackup with WAL archiving, "
+                "store backups off-host, and regularly test restores."
             )
         }

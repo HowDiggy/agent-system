@@ -21,6 +21,7 @@ class ReliabilityCritic(Critic):
         if "verify" not in solution and "checksum" not in solution:
             critiques.append(
                 Critique(
+                    target=proposal["proposer"],
                     issue="No verification of backup integrity",
                     severity=Severity.CRITICAL,
                     dimension=Dimension.RELIABILITY,
@@ -35,6 +36,7 @@ class ReliabilityCritic(Critic):
         if "local disk" in solution:
             critiques.append(
                 Critique(
+                    target=proposal["proposer"],
                     issue="Single storage location",
                     severity=Severity.WARNING,
                     dimension=Dimension.RELIABILITY,
