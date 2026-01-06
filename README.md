@@ -83,7 +83,7 @@ This is intentional.
 ---
 
 ## Current Architecture (v0.2)
-
+```
 agent-system/
 ├── orchestrator/
 │ ├── state_machine.py # Core control loop (explicit FSM)
@@ -106,7 +106,7 @@ agent-system/
 │ └── postgres_backup.py # Example problem domain
 │
 └── main.py # Entry point: runs one full loop
-
+```
 ---
 
 ## Orchestrator as a State Machine
