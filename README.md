@@ -112,7 +112,7 @@ agent-system/
 ## Orchestrator as a State Machine
 
 The orchestrator is implemented as an **explicit finite state machine**:
-
+```
 START
 ↓
 PROPOSE
@@ -124,7 +124,7 @@ ARBITRATE
 REVISE (optional, bounded)
 ↓
 END
-
+```
 Key properties:
 - All transitions are explicit
 - Loop guards prevent infinite execution
