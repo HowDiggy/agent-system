@@ -29,6 +29,7 @@ class Orchestrator:
 
         self.proposals = []
         self.active_proposal = None
+        self.selected_proposer_name = None
         self.critiques = []
         self.decision = None
         self.max_iterations = 3
@@ -75,7 +76,7 @@ class Orchestrator:
                     self.critiques
                 )
 
-                self.active_proposal = self.decision.selected_proposer
+                self.selected_proposer_name = self.decision.selected_proposer
 
                 if self.decision.action == Action.ACCEPT:
                     self.state = OrchestratorState.END
@@ -94,7 +95,7 @@ class Orchestrator:
 
                 winning_proposer = next(
                     p for p in self.proposers
-                    if p.name == self.active_proposal["proposer"]
+                    if p.name == self.selected_proposer_name
                 )
 
                 self.active_proposal = winning_proposer.revise(
@@ -107,7 +108,7 @@ class Orchestrator:
                 self.state = OrchestratorState.CRITIQUE
 
         return {
-            "proposal": self.proposal,
+            "proposal": self.selected_proposer_name,
             "critiques": self.critiques,
             "decision": self.decision,
         }
